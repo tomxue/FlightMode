@@ -3,8 +3,11 @@
     <string name="app_name">FMode</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">FModeOnOff</string>
-    <string name="CheckBox">Flight mode on/off</string>
-        <string name="FlightModeOn">Flight mode is on!</string>
+    <string name="CheckBox1">Flight mode on/off</string>
+    <string name="FlightModeOn">Flight mode is on!</string>
     <string name="FlightModeOff">Flight mode is off!</string>
+    <string name="CheckBox2">Toggle WLAN/BT</string>
+    <string name="ToggleWlanGPRSOn">WLAN is on and GPRS is off!</string>
+    <string name="ToggleWlanGPRSOff">WLAN is off and GPRS is on!</string>
 
 </resources>
