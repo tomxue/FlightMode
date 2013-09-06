@@ -12,16 +12,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
-public class MainActivity extends Activity implements
-		CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends Activity {
 
-	CheckBox cb1, cb2;
+	RadioButton rb1, rb2, rb3;
 	Context mContext = this;
-	String FlightModeOn, FlightModeOff, ToggleWlanGPRSOn, ToggleWlanGPRSOff;
 	WifiManager wifiManager;
 
 	@Override
@@ -29,36 +26,50 @@ public class MainActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		FlightModeOn = getResources().getString(R.string.FlightModeOn);
-		FlightModeOff = getResources().getString(R.string.FlightModeOff);
-		ToggleWlanGPRSOn = getResources().getString(R.string.ToggleWlanGPRSOn);
-		ToggleWlanGPRSOff = getResources().getString(R.string.ToggleWlanGPRSOff);
+		// æ ¹æ®IDæ‰¾åˆ°RadioGroupå®ä¾‹
+		RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup1);
+		// set the default selected RadioButton
+		group.check(R.id.radio2);
+		// ç»‘å®šä¸€ä¸ªåŒ¿åç›‘å¬å™¨
+		group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
-		cb1 = (CheckBox) findViewById(R.id.checkBox1);
-		cb2 = (CheckBox) findViewById(R.id.checkBox2);
-
-		cb1.setOnCheckedChangeListener((OnCheckedChangeListener) this);
-		cb2.setOnCheckedChangeListener((OnCheckedChangeListener) this);
-	}
-
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		if (buttonView.findViewById(R.id.checkBox1) == cb1) {
-			if (isChecked) {
-				cb1.setText(FlightModeOn);
-				setAirplaneModeOn(true);
-			} else {
-				cb1.setText(FlightModeOff);
-				setAirplaneModeOn(false);
+			@Override
+			public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+				// è·å–å˜æ›´åçš„é€‰ä¸­é¡¹çš„ID
+				int radioButtonId = radioGroup.getCheckedRadioButtonId();
+				// æ ¹æ®IDè·å–RadioButtonçš„å®ä¾‹
+				RadioButton rb = (RadioButton) MainActivity.this
+						.findViewById(radioButtonId);
+				
+				switch (checkedId) {
+				case R.id.radio0:	// Flight mode on
+					setAirplaneModeOn(true);
+					break;
+				case R.id.radio1:	// WLAN on, while flight mode can be on
+					setAirplaneModeOn(false);
+					// add sleep to make the state change stable
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					setWlanGPRSModeOn(true);
+					break;
+				case R.id.radio2:	// GPRS on, while flight mode cannot be on
+					setAirplaneModeOn(false);
+					// add sleep to make the state change stable
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					setWlanGPRSModeOn(false);
+					break;
+				}
 			}
-		} else if (buttonView.findViewById(R.id.checkBox2) == cb2) {
-			if (isChecked) {
-				cb2.setText(ToggleWlanGPRSOn);
-				setWlanGPRSModeOn(true);
-			} else {
-				cb2.setText(ToggleWlanGPRSOff);
-				setWlanGPRSModeOn(false);
-			}
-		}
+		});
 	}
 
 	@Override
@@ -77,59 +88,52 @@ public class MainActivity extends Activity implements
 		intent.putExtra("state", enabling);
 		mContext.sendBroadcast(intent);
 	}
-	
+
 	private void setWlanGPRSModeOn(boolean enabled) {
-		// Change the system setting
-//		Settings.System.putInt(mContext.getContentResolver(),
-//				Settings.System.AIRPLANE_MODE_ON, enabling ? 1 : 0);
-//
-//		// Post the intent
-//		Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-//		intent.putExtra("state", enabling);
-//		mContext.sendBroadcast(intent);
-		
 		wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 		wifiManager.setWifiEnabled(enabled);
-		
-		ConnectivityManager conMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		  Class<?> conMgrClass = null; // ConnectivityManagerÀà
-		  Field iConMgrField = null; // ConnectivityManagerÀàÖĞµÄ×Ö¶Î
-		  Object iConMgr = null; // IConnectivityManagerÀàµÄÒıÓÃ
-		  Class<?> iConMgrClass = null; // IConnectivityManagerÀà
-		  Method setMobileDataEnabledMethod = null; // setMobileDataEnabled·½·¨
+		ConnectivityManager conMgr = (ConnectivityManager) this
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-		  try {
-		   // È¡µÃConnectivityManagerÀà
-		   conMgrClass = Class.forName(conMgr.getClass().getName());
-		   // È¡µÃConnectivityManagerÀàÖĞµÄ¶ÔÏómService
-		   iConMgrField = conMgrClass.getDeclaredField("mService");
-		   // ÉèÖÃmService¿É·ÃÎÊ
-		   iConMgrField.setAccessible(true);
-		   // È¡µÃmServiceµÄÊµÀı»¯ÀàIConnectivityManager
-		   iConMgr = iConMgrField.get(conMgr);
-		   // È¡µÃIConnectivityManagerÀà
-		   iConMgrClass = Class.forName(iConMgr.getClass().getName());
-		   // È¡µÃIConnectivityManagerÀàÖĞµÄsetMobileDataEnabled(boolean)·½·¨
-		   setMobileDataEnabledMethod = iConMgrClass.getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-		   // ÉèÖÃsetMobileDataEnabled·½·¨¿É·ÃÎÊ
-		   setMobileDataEnabledMethod.setAccessible(true);
-		   // µ÷ÓÃsetMobileDataEnabled·½·¨
-		   setMobileDataEnabledMethod.invoke(iConMgr, !enabled);
-		  } catch (ClassNotFoundException e) {
-		   e.printStackTrace();
-		  } catch (NoSuchFieldException e) {
-		   e.printStackTrace();
-		  } catch (SecurityException e) {
-		   e.printStackTrace();
-		  } catch (NoSuchMethodException e) {
-		   e.printStackTrace();
-		  } catch (IllegalArgumentException e) {
-		   e.printStackTrace();
-		  } catch (IllegalAccessException e) {
-		   e.printStackTrace();
-		  } catch (InvocationTargetException e) {
-		   e.printStackTrace();
-		  }
+		Class<?> conMgrClass = null; // ConnectivityManagerç±»
+		Field iConMgrField = null; // ConnectivityManagerç±»ä¸­çš„å­—æ®µ
+		Object iConMgr = null; // IConnectivityManagerç±»çš„å¼•ç”¨
+		Class<?> iConMgrClass = null; // IConnectivityManagerç±»
+		Method setMobileDataEnabledMethod = null; // setMobileDataEnabledæ–¹æ³•
+
+		try {
+			// å–å¾—ConnectivityManagerç±»
+			conMgrClass = Class.forName(conMgr.getClass().getName());
+			// å–å¾—ConnectivityManagerç±»ä¸­çš„å¯¹è±¡mService
+			iConMgrField = conMgrClass.getDeclaredField("mService");
+			// è®¾ç½®mServiceå¯è®¿é—®
+			iConMgrField.setAccessible(true);
+			// å–å¾—mServiceçš„å®ä¾‹åŒ–ç±»IConnectivityManager
+			iConMgr = iConMgrField.get(conMgr);
+			// å–å¾—IConnectivityManagerç±»
+			iConMgrClass = Class.forName(iConMgr.getClass().getName());
+			// å–å¾—IConnectivityManagerç±»ä¸­çš„setMobileDataEnabled(boolean)æ–¹æ³•
+			setMobileDataEnabledMethod = iConMgrClass.getDeclaredMethod(
+					"setMobileDataEnabled", Boolean.TYPE);
+			// è®¾ç½®setMobileDataEnabledæ–¹æ³•å¯è®¿é—®
+			setMobileDataEnabledMethod.setAccessible(true);
+			// è°ƒç”¨setMobileDataEnabledæ–¹æ³•
+			setMobileDataEnabledMethod.invoke(iConMgr, !enabled);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 }
