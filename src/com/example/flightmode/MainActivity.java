@@ -18,7 +18,6 @@ import android.widget.RadioGroup;
 public class MainActivity extends Activity {
 
 	RadioButton rb1, rb2, rb3;
-	Context mContext = this;
 	WifiManager wifiManager;
 
 	@Override
@@ -80,13 +79,13 @@ public class MainActivity extends Activity {
 
 	private void setAirplaneModeOn(boolean enabling) {
 		// Change the system setting
-		Settings.System.putInt(mContext.getContentResolver(),
+		Settings.System.putInt(this.getContentResolver(),
 				Settings.System.AIRPLANE_MODE_ON, enabling ? 1 : 0);
 
 		// Post the intent
 		Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-		intent.putExtra("state", enabling);
-		mContext.sendBroadcast(intent);
+//		intent.putExtra("state2", enabling);
+		this.sendBroadcast(intent);
 	}
 
 	private void setWlanGPRSModeOn(boolean enabled) {
