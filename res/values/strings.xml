@@ -6,5 +6,6 @@
     <string name="RadioButton1">Flight mode on</string>
     <string name="RadioButton2">WLAN on</string>
     <string name="RadioButton3">GPRS on</string>
+    <string name="RadioButton4">Do nothing</string>
 
 </resources>
