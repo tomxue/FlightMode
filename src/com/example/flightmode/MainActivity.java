@@ -29,23 +29,23 @@ public class MainActivity extends Activity {
 		// 根据ID找到RadioGroup实例
 		RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup1);
 		// set the default selected RadioButton
-		group.check(R.id.radio2);
+		group.check(R.id.radio3);
 		// 绑定一个匿名监听器
 		group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
 				// 获取变更后的选中项的ID
-				int radioButtonId = radioGroup.getCheckedRadioButtonId();
+//				int radioButtonId = radioGroup.getCheckedRadioButtonId();
 				// 根据ID获取RadioButton的实例
-				RadioButton rb = (RadioButton) MainActivity.this
-						.findViewById(radioButtonId);
-				
+//				RadioButton rb = (RadioButton) MainActivity.this
+//						.findViewById(radioButtonId);
+
 				switch (checkedId) {
-				case R.id.radio0:	// Flight mode on
+				case R.id.radio0: // Flight mode on
 					setAirplaneModeOn(true);
 					break;
-				case R.id.radio1:	// WLAN on, while flight mode can be on
+				case R.id.radio1: // WLAN on, while flight mode can be on
 					setAirplaneModeOn(false);
 					// add sleep to make the state change stable
 					try {
@@ -56,7 +56,7 @@ public class MainActivity extends Activity {
 					}
 					setWlanGPRSModeOn(true);
 					break;
-				case R.id.radio2:	// GPRS on, while flight mode cannot be on
+				case R.id.radio2: // GPRS on, while flight mode cannot be on
 					setAirplaneModeOn(false);
 					// add sleep to make the state change stable
 					try {
