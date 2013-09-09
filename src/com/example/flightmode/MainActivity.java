@@ -38,10 +38,10 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
 				// 获取变更后的选中项的ID
-//				int radioButtonId = radioGroup.getCheckedRadioButtonId();
+				// int radioButtonId = radioGroup.getCheckedRadioButtonId();
 				// 根据ID获取RadioButton的实例
-//				RadioButton rb = (RadioButton) MainActivity.this
-//						.findViewById(radioButtonId);
+				// RadioButton rb = (RadioButton) MainActivity.this
+				// .findViewById(radioButtonId);
 
 				switch (checkedId) {
 				case R.id.radio0: // Flight mode on
@@ -87,7 +87,7 @@ public class MainActivity extends Activity {
 
 		// Post the intent
 		Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-//		intent.putExtra("state2", enabling);
+		// intent.putExtra("state2", enabling);
 		this.sendBroadcast(intent);
 	}
 
@@ -100,40 +100,53 @@ public class MainActivity extends Activity {
 
 		Class<?> conMgrClass = null; // ConnectivityManager类
 		Field iConMgrField = null; // ConnectivityManager类中的字段
-		Object iConMgrFieldValue = null; // IConnectivityManager类的引用
+		Object iConMgrFieldObject = null; // IConnectivityManager类的引用
 		Class<?> iConMgrClass = null; // IConnectivityManager类
 		Method setMobileDataEnabledMethod = null; // setMobileDataEnabled方法
+		
+		conMgr.getClass().getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
 
 		try {
 			// 取得ConnectivityManager类
 			conMgrClass = Class.forName(conMgr.getClass().getName());
-			// textview1.setText(conMgr.getClass().getName()); is android.net.ConnectivityManager
-			// textview1.setText(conMgrClass.getClass().getName()); is java.lang.Class
-//			textview1.setText(conMgrClass.getName()); // is android.net.ConnectivityManager
-//			textview1.setText(conMgrClass.toString()); // is class android.net.ConnectivityManager
+			// textview1.setText(conMgr.getClass().getName()); is
+			// android.net.ConnectivityManager
+			// textview1.setText(conMgrClass.getClass().getName()); is
+			// java.lang.Class
+			// textview1.setText(conMgrClass.getName()); // is
+			// android.net.ConnectivityManager
+			// textview1.setText(conMgrClass.toString()); // is class
+			// android.net.ConnectivityManager
 			// 取得ConnectivityManager类中的对象mService
 			iConMgrField = conMgrClass.getDeclaredField("mService");
-//			textview1.setText(iConMgrField.getName().toString()); is mService
+			// textview1.setText(iConMgrField.getName().toString()); is mService
 			// 设置mService可访问
 			iConMgrField.setAccessible(true);
 			// 取得mService的实例化类IConnectivityManager
 			// get(): Returns the value of the field in the specified object.
-			iConMgrFieldValue = iConMgrField.get(conMgr);
-//			textview1.setText(iConMgrFieldValue.toString()); is android.net.IConnectivityManager$Stud$Proxy@41ad1498
+			iConMgrFieldObject = iConMgrField.get(conMgr);
+			// textview1.setText(iConMgrFieldValue.toString()); is
+			// android.net.IConnectivityManager$Stud$Proxy@41ad1498
 			// 取得IConnectivityManager类
-			iConMgrClass = Class.forName(iConMgrFieldValue.getClass().getName());
-//			textview1.setText(iConMgrFieldValue.getClass().getName()); is android.net.IConnectivityManager$Stud$Proxy
-//			textview1.setText(iConMgrClass.getName()); // is android.net.IConnectivityManager$Stud$Proxy
-//			textview1.setText(iConMgrClass.toString()); // is class android.net.IConnectivityManager$Stud$Proxy
+			iConMgrClass = Class
+					.forName(iConMgrFieldObject.getClass().getName());
+			// textview1.setText(iConMgrFieldValue.getClass().getName()); is
+			// android.net.IConnectivityManager$Stud$Proxy
+			// textview1.setText(iConMgrClass.getName()); // is
+			// android.net.IConnectivityManager$Stud$Proxy
+			// textview1.setText(iConMgrClass.toString()); // is class
+			// android.net.IConnectivityManager$Stud$Proxy
 			// 取得IConnectivityManager类中的setMobileDataEnabled(boolean)方法
 			setMobileDataEnabledMethod = iConMgrClass.getDeclaredMethod(
 					"setMobileDataEnabled", Boolean.TYPE);
-//			textview1.setText(setMobileDataEnabledMethod.getName()); is setMobileDataEnabled
+			// textview1.setText(setMobileDataEnabledMethod.getName()); is
+			// setMobileDataEnabled
 			// 设置setMobileDataEnabled方法可访问
 			setMobileDataEnabledMethod.setAccessible(true);
 			// 调用setMobileDataEnabled方法
-			// receiver: the object on which to call this method (or null for static methods)
-			setMobileDataEnabledMethod.invoke(iConMgrFieldValue, !enabled);
+			// receiver: the object on which to call this method (or null for
+			// static methods)
+			setMobileDataEnabledMethod.invoke(iConMgrFieldObject, !enabled);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (NoSuchFieldException e) {
