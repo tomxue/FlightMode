@@ -27,7 +27,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		textview1 = (TextView) this.findViewById(R.id.textView1);
 		// 根据ID找到RadioGroup实例
 		RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup1);
 		// set the default selected RadioButton
@@ -104,8 +103,6 @@ public class MainActivity extends Activity {
 		Class<?> iConMgrClass = null; // IConnectivityManager类
 		Method setMobileDataEnabledMethod = null; // setMobileDataEnabled方法
 		
-		conMgr.getClass().getDeclaredMethod("setMobileDataEnabled", Boolean.TYPE);
-
 		try {
 			// 取得ConnectivityManager类
 			conMgrClass = Class.forName(conMgr.getClass().getName());
