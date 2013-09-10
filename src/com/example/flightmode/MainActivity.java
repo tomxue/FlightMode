@@ -4,14 +4,21 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
 import android.view.Menu;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -21,11 +28,30 @@ public class MainActivity extends Activity {
 	RadioButton rb1, rb2, rb3;
 	WifiManager wifiManager;
 	TextView textview1;
+	CheckBox cb1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		cb1 = (CheckBox) this.findViewById(R.id.checkBox1);
+		
+		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if (buttonView.findViewById(R.id.checkBox1) == cb1) {
+					if (isChecked) {
+						cb1.setText("GPS on");
+						toggleGPS();
+					} else {
+						cb1.setText("GPS off");
+						toggleGPS(); 
+					}
+				}
+			}
+		});
 
 		// 根据ID找到RadioGroup实例
 		RadioGroup group = (RadioGroup) this.findViewById(R.id.radioGroup1);
@@ -79,6 +105,21 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	// TODO don't work?!
+	private void toggleGPS() {
+		Intent gpsIntent = new Intent();
+		gpsIntent.setClassName("com.android.settings",
+				"com.android.settings.widget.SettingsAppWidgetProvider");
+		gpsIntent.addCategory("android.intent.category.ALTERNATIVE");
+		gpsIntent.setData(Uri.parse("custom:3"));
+		try {
+			PendingIntent.getBroadcast(this, 0, gpsIntent, 0).send();
+//			this.sendBroadcast(gpsIntent);
+		} catch (CanceledException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void setAirplaneModeOn(boolean enabling) {
 		// Change the system setting
 		Settings.System.putInt(this.getContentResolver(),
@@ -97,12 +138,15 @@ public class MainActivity extends Activity {
 		ConnectivityManager conMgr = (ConnectivityManager) this
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 
+		// 打开移动网络比较麻烦，系统没有直接提供开放的方法，只在ConnectivityManager类中有一个不可见的setMobileDataEnabled方法，
+		// 查看源代码发现，它是调用IConnectivityManager类中的setMobileDataEnabled(boolean)方法。
+		// 由于方法不可见，只能采用反射来调用
 		Class<?> conMgrClass = null; // ConnectivityManager类
 		Field iConMgrField = null; // ConnectivityManager类中的字段
 		Object iConMgrFieldObject = null; // IConnectivityManager类的引用
 		Class<?> iConMgrClass = null; // IConnectivityManager类
 		Method setMobileDataEnabledMethod = null; // setMobileDataEnabled方法
-		
+
 		try {
 			// 取得ConnectivityManager类
 			conMgrClass = Class.forName(conMgr.getClass().getName());
@@ -125,8 +169,8 @@ public class MainActivity extends Activity {
 			// textview1.setText(iConMgrFieldValue.toString()); is
 			// android.net.IConnectivityManager$Stud$Proxy@41ad1498
 			// 取得IConnectivityManager类
-			iConMgrClass = Class
-					.forName(iConMgrFieldObject.getClass().getName());
+			iConMgrClass = Class.forName(iConMgrFieldObject.getClass()
+					.getName());
 			// textview1.setText(iConMgrFieldValue.getClass().getName()); is
 			// android.net.IConnectivityManager$Stud$Proxy
 			// textview1.setText(iConMgrClass.getName()); // is
