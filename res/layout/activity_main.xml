@@ -44,17 +44,15 @@
         android:layout_alignLeft="@+id/radioGroup1"
         android:layout_below="@+id/radioGroup1"
         android:layout_centerVertical="true"
-        android:text="GPS" />
+        android:text="@string/CheckBox1" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="23dp"
-        android:orientation="vertical" >
-
-    </LinearLayout>
+    <CheckBox
+        android:id="@+id/checkBox2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/checkBox1"
+        android:layout_below="@+id/checkBox1"
+        android:layout_centerVertical="true"
+        android:text="@string/CheckBox2" />
 
 </RelativeLayout>
