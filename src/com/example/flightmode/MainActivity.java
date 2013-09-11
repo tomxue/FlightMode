@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
 		cb2 = (CheckBox) this.findViewById(R.id.checkBox2);
 
 		gps_check();
-		
+
 		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 			@Override
@@ -47,11 +47,13 @@ public class MainActivity extends Activity {
 				if (buttonView.findViewById(R.id.checkBox1) == cb1) {
 					if (isChecked) {
 						cb1.setText("GPS on");
-						toggleGPS();
+						// toggleGPS();
+						turnGPSOn();
 						gps_check();
 					} else {
 						cb1.setText("GPS off");
-						toggleGPS();
+						// toggleGPS();
+						turnGPSOff();
 						gps_check();
 					}
 				}
@@ -109,7 +111,7 @@ public class MainActivity extends Activity {
 
 	// TODO don't work?! Maybe this way can only work on old versions
 	private void toggleGPS() {
-		Intent gpsIntent = new Intent();
+		Intent gpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 		gpsIntent.setClassName("com.android.settings",
 				"com.android.settings.widget.SettingsAppWidgetProvider");
 		gpsIntent.addCategory("android.intent.category.ALTERNATIVE");
@@ -121,21 +123,54 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void gps_check() {
-	       boolean isGPSEnabled=false;
+		boolean isGPSEnabled = false;
 
-	       isGPSEnabled=Settings.Secure.isLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER);
+		isGPSEnabled = Settings.Secure.isLocationProviderEnabled(
+				getContentResolver(), LocationManager.GPS_PROVIDER);
 
-	       if(isGPSEnabled)
-	       {
-	    	   cb2.setChecked(true);
-	       }
-	       else
-	       {
-	           cb2.setChecked(false);
-	       }
-	    }
+		if (isGPSEnabled) {
+			cb2.setChecked(true);
+		} else {
+			cb2.setChecked(false);
+		}
+	}
+
+	public void turnGPSOn() {
+		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+		intent.putExtra("enabled", true);
+		this.sendBroadcast(intent);
+
+		String provider = Settings.Secure.getString(this.getContentResolver(),
+				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if (!provider.contains("gps")) { // if gps is disabled
+			final Intent poke = new Intent();
+			poke.setClassName("com.android.settings",
+					"com.android.settings.widget.SettingsAppWidgetProvider");
+			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+			poke.setData(Uri.parse("3"));
+			this.sendBroadcast(poke);
+		}
+	}
+
+	// automatic turn off the gps
+	public void turnGPSOff() {
+		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
+		intent.putExtra("enabled", false);
+		sendBroadcast(intent);
+		
+		String provider = Settings.Secure.getString(this.getContentResolver(),
+				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+		if (provider.contains("gps")) { // if gps is enabled
+			final Intent poke = new Intent();
+			poke.setClassName("com.android.settings",
+					"com.android.settings.widget.SettingsAppWidgetProvider");
+			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
+			poke.setData(Uri.parse("3"));
+			this.sendBroadcast(poke);
+		}
+	}
 
 	private void setAirplaneModeOn(boolean enabling) {
 		// Change the system setting
@@ -158,7 +193,8 @@ public class MainActivity extends Activity {
 		// 打开移动网络比较麻烦，系统没有直接提供开放的方法，只在ConnectivityManager类中有一个不可见的setMobileDataEnabled方法，
 		// 查看源代码发现，它是调用IConnectivityManager类中的setMobileDataEnabled(boolean)方法。
 		// 由于方法不可见，只能采用反射来调用
-		// 先得到ConnectivityManager类名 -> mService字段 -> 该字段值/对象 -> IConnectivityManager类名 -> setMobileDataEnabled方法 -> 调用之
+		// 先得到ConnectivityManager类名 -> mService字段 -> 该字段值/对象 ->
+		// IConnectivityManager类名 -> setMobileDataEnabled方法 -> 调用之
 		Class<?> conMgrClass = null; // ConnectivityManager类
 		Field iConMgrField = null; // ConnectivityManager类中的字段
 		Object iConMgrFieldObject = null; // IConnectivityManager类的引用
