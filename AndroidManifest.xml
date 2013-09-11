@@ -1,32 +1,13 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flightmode"
-    android:versionCode="1"
-    android:versionName="1.0" >
+<resources>
 
-    <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="15" />
+    <string name="app_name">FMode</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">FModeOnOff</string>    
+    <string name="RadioButton1">Flight mode on</string>
+    <string name="RadioButton2">WLAN on</string>
+    <string name="RadioButton3">GPRS on</string>
+    <string name="RadioButton4">Do nothing</string>
+    <string name="CheckBox1">GPS set</string>
+    <string name="CheckBox2">GPS status</string>
 
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-        
-
-    <application
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
+</resources>
