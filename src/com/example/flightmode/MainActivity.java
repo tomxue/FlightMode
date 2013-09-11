@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -26,7 +27,7 @@ public class MainActivity extends Activity {
 	RadioButton rb1, rb2, rb3;
 	WifiManager wifiManager;
 	TextView textview1;
-	CheckBox cb1;
+	CheckBox cb1, cb2;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -34,7 +35,10 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		cb1 = (CheckBox) this.findViewById(R.id.checkBox1);
+		cb2 = (CheckBox) this.findViewById(R.id.checkBox2);
 
+		gps_check();
+		
 		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
 			@Override
@@ -44,9 +48,11 @@ public class MainActivity extends Activity {
 					if (isChecked) {
 						cb1.setText("GPS on");
 						toggleGPS();
+						gps_check();
 					} else {
 						cb1.setText("GPS off");
 						toggleGPS();
+						gps_check();
 					}
 				}
 			}
@@ -80,7 +86,6 @@ public class MainActivity extends Activity {
 						e.printStackTrace();
 					}
 					setWlanGPRSModeOn(true);
-					break;
 				case R.id.radio2: // GPRS on, while flight mode cannot be on
 					setAirplaneModeOn(false);
 					// add sleep to make the state change stable
@@ -102,7 +107,7 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
-	// TODO don't work?!
+	// TODO don't work?! Maybe this way can only work on old versions
 	private void toggleGPS() {
 		Intent gpsIntent = new Intent();
 		gpsIntent.setClassName("com.android.settings",
@@ -116,6 +121,21 @@ public class MainActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
+	
+	private void gps_check() {
+	       boolean isGPSEnabled=false;
+
+	       isGPSEnabled=Settings.Secure.isLocationProviderEnabled(getContentResolver(), LocationManager.GPS_PROVIDER);
+
+	       if(isGPSEnabled)
+	       {
+	    	   cb2.setChecked(true);
+	       }
+	       else
+	       {
+	           cb2.setChecked(false);
+	       }
+	    }
 
 	private void setAirplaneModeOn(boolean enabling) {
 		// Change the system setting
