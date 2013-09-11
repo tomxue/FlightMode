@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -18,7 +17,6 @@ import android.content.Intent;
 import android.view.Menu;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -34,20 +32,21 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		cb1 = (CheckBox) this.findViewById(R.id.checkBox1);
-		
+
 		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-			
+
 			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
 				if (buttonView.findViewById(R.id.checkBox1) == cb1) {
 					if (isChecked) {
 						cb1.setText("GPS on");
 						toggleGPS();
 					} else {
 						cb1.setText("GPS off");
-						toggleGPS(); 
+						toggleGPS();
 					}
 				}
 			}
@@ -78,7 +77,6 @@ public class MainActivity extends Activity {
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					setWlanGPRSModeOn(true);
@@ -89,7 +87,6 @@ public class MainActivity extends Activity {
 					try {
 						Thread.sleep(200);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					setWlanGPRSModeOn(false);
@@ -114,7 +111,7 @@ public class MainActivity extends Activity {
 		gpsIntent.setData(Uri.parse("custom:3"));
 		try {
 			PendingIntent.getBroadcast(this, 0, gpsIntent, 0).send();
-//			this.sendBroadcast(gpsIntent);
+			// this.sendBroadcast(gpsIntent);
 		} catch (CanceledException e) {
 			e.printStackTrace();
 		}
@@ -141,6 +138,7 @@ public class MainActivity extends Activity {
 		// 打开移动网络比较麻烦，系统没有直接提供开放的方法，只在ConnectivityManager类中有一个不可见的setMobileDataEnabled方法，
 		// 查看源代码发现，它是调用IConnectivityManager类中的setMobileDataEnabled(boolean)方法。
 		// 由于方法不可见，只能采用反射来调用
+		// 先得到ConnectivityManager类名 -> mService字段 -> 该字段值/对象 -> IConnectivityManager类名 -> setMobileDataEnabled方法 -> 调用之
 		Class<?> conMgrClass = null; // ConnectivityManager类
 		Field iConMgrField = null; // ConnectivityManager类中的字段
 		Object iConMgrFieldObject = null; // IConnectivityManager类的引用
