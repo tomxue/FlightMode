@@ -7,5 +7,7 @@
     <string name="RadioButton2">WLAN on</string>
     <string name="RadioButton3">GPRS on</string>
     <string name="RadioButton4">Do nothing</string>
+    <string name="CheckBox1">GPS set</string>
+    <string name="CheckBox2">GPS status</string>
 
 </resources>
