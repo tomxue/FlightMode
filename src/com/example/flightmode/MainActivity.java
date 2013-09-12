@@ -21,6 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -137,20 +138,22 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	// 出现“正在使用GPS搜索...”字样，但是GPS指示键没有被点亮
 	public void turnGPSOn() {
 		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-		intent.putExtra("enabled", true);
+		intent.putExtra("enabled", true);	// 源代码某处：public static final String EXTRA_GPS_ENABLED = "enabled"; 
 		this.sendBroadcast(intent);
 
-		String provider = Settings.Secure.getString(this.getContentResolver(),
+		String provider = Settings.Secure.getString(this.getContentResolver(), 
 				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if (!provider.contains("gps")) { // if gps is disabled
+		if (!provider.contains("gps")) { // if gps is disabled，i9300实测被执行
 			final Intent poke = new Intent();
 			poke.setClassName("com.android.settings",
 					"com.android.settings.widget.SettingsAppWidgetProvider");
 			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
 			poke.setData(Uri.parse("3"));
 			this.sendBroadcast(poke);
+			Toast.makeText(this, "turn GPS on", Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -162,13 +165,14 @@ public class MainActivity extends Activity {
 		
 		String provider = Settings.Secure.getString(this.getContentResolver(),
 				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if (provider.contains("gps")) { // if gps is enabled
+		if (provider.contains("gps")) { // if gps is enabled，i9300实测没有被执行
 			final Intent poke = new Intent();
 			poke.setClassName("com.android.settings",
 					"com.android.settings.widget.SettingsAppWidgetProvider");
 			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
 			poke.setData(Uri.parse("3"));
 			this.sendBroadcast(poke);
+			Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
 		}
 	}
 
