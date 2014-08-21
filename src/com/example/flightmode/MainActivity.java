@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -28,7 +29,8 @@ public class MainActivity extends Activity {
 	RadioButton rb1, rb2, rb3;
 	WifiManager wifiManager;
 	TextView textview1;
-	CheckBox cb1, cb2;
+	CheckBox cb1, cb2, cb3;
+	PowerManager.WakeLock wakeLock;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -37,6 +39,7 @@ public class MainActivity extends Activity {
 
 		cb1 = (CheckBox) this.findViewById(R.id.checkBox1);
 		cb2 = (CheckBox) this.findViewById(R.id.checkBox2);
+		cb3 = (CheckBox) this.findViewById(R.id.checkBox3);
 
 		gps_check();
 
@@ -56,6 +59,23 @@ public class MainActivity extends Activity {
 						// toggleGPS();
 						turnGPSOff();
 						gps_check();
+					}
+				}
+			}
+		});
+		
+		cb3.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				if (buttonView.findViewById(R.id.checkBox3) == cb3) {
+					if (isChecked) {
+						cb3.setText("Screen keep on");
+						turnScreenOn();
+					} else {
+						cb3.setText("Screen keep off");
+						turnScreenOff();
 					}
 				}
 			}
@@ -174,6 +194,18 @@ public class MainActivity extends Activity {
 			this.sendBroadcast(poke);
 			Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
 		}
+	}
+	
+	public void turnScreenOn() {
+		//启用屏幕常亮  
+		wakeLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "MyActivity");  
+		wakeLock.acquire(); 
+	}
+	
+	public void turnScreenOff() {
+	//关闭屏幕常亮  
+	if (wakeLock != null)
+		wakeLock.release();
 	}
 
 	private void setAirplaneModeOn(boolean enabling) {

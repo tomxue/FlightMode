@@ -9,5 +9,6 @@
     <string name="RadioButton4">Do nothing</string>
     <string name="CheckBox1">GPS set</string>
     <string name="CheckBox2">GPS status</string>
+    <string name="CheckBox3">Screen keep on</string>
 
 </resources>
