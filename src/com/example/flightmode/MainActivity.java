@@ -42,6 +42,7 @@ public class MainActivity extends Activity {
 		cb3 = (CheckBox) this.findViewById(R.id.checkBox3);
 
 		gps_check();
+		turnScreenOn();
 
 		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 

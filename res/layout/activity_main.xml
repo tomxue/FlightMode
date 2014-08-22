@@ -59,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/checkBox2"
         android:layout_below="@+id/checkBox2"
+        android:checked="true"
         android:text="@string/CheckBox3" />
 
 </RelativeLayout>
