@@ -3,8 +3,10 @@ package com.example.flightmode;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -16,6 +18,7 @@ import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -31,6 +34,7 @@ public class MainActivity extends Activity {
 	TextView textview1;
 	CheckBox cb1, cb2, cb3;
 	PowerManager.WakeLock wakeLock;
+	final String TAG = "Tom phone settings";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +44,7 @@ public class MainActivity extends Activity {
 		cb1 = (CheckBox) this.findViewById(R.id.checkBox1);
 		cb2 = (CheckBox) this.findViewById(R.id.checkBox2);
 		cb3 = (CheckBox) this.findViewById(R.id.checkBox3);
-
+		
 		gps_check();
 		turnScreenOn();
 
@@ -53,12 +57,12 @@ public class MainActivity extends Activity {
 					if (isChecked) {
 						cb1.setText("GPS on");
 						// toggleGPS();
-						turnGPSOn();
+						turnGPSOn(true);
 						gps_check();
 					} else {
 						cb1.setText("GPS off");
 						// toggleGPS();
-						turnGPSOff();
+						turnGPSOn(false);
 						gps_check();
 					}
 				}
@@ -124,6 +128,7 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
+	
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -146,6 +151,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	// 手机GPS指示如果被认为选择开启，则启动本程序是，GPS status checkbox会被选中
 	private void gps_check() {
 		boolean isGPSEnabled = false;
 
@@ -158,11 +164,14 @@ public class MainActivity extends Activity {
 			cb2.setChecked(false);
 		}
 	}
-
+	
 	// 出现“正在使用GPS搜索...”字样，但是GPS指示键没有被点亮
-	public void turnGPSOn() {
+	public void turnGPSOn(boolean enabled) {
 		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-		intent.putExtra("enabled", true);	// 源代码某处：public static final String EXTRA_GPS_ENABLED = "enabled"; 
+		if(enabled)
+			intent.putExtra("enabled", true);	// 源代码某处：public static final String EXTRA_GPS_ENABLED = "enabled"; 
+		else
+			intent.putExtra("enabled", false);
 		this.sendBroadcast(intent);
 
 		String provider = Settings.Secure.getString(this.getContentResolver(), 
@@ -174,26 +183,10 @@ public class MainActivity extends Activity {
 			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
 			poke.setData(Uri.parse("3"));
 			this.sendBroadcast(poke);
-			Toast.makeText(this, "turn GPS on", Toast.LENGTH_LONG).show();
-		}
-	}
-
-	// automatic turn off the gps
-	public void turnGPSOff() {
-		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-		intent.putExtra("enabled", false);
-		sendBroadcast(intent);
-		
-		String provider = Settings.Secure.getString(this.getContentResolver(),
-				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if (provider.contains("gps")) { // if gps is enabled，i9300实测没有被执行
-			final Intent poke = new Intent();
-			poke.setClassName("com.android.settings",
-					"com.android.settings.widget.SettingsAppWidgetProvider");
-			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-			poke.setData(Uri.parse("3"));
-			this.sendBroadcast(poke);
-			Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
+			if(enabled)
+				Toast.makeText(this, "turn GPS on", Toast.LENGTH_LONG).show();
+			else
+				Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
 		}
 	}
 	
