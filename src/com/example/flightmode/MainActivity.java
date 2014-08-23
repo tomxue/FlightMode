@@ -16,6 +16,7 @@ import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -41,8 +42,9 @@ public class MainActivity extends Activity {
 		cb2 = (CheckBox) this.findViewById(R.id.checkBox2);
 		cb3 = (CheckBox) this.findViewById(R.id.checkBox3);
 
-		gps_check();
-		turnScreenOn();
+		gpsCheck();
+		keepScreenOn(true);
+		Log.v("tomxue", "turnScreenOn is executed");
 
 		cb1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -53,13 +55,13 @@ public class MainActivity extends Activity {
 					if (isChecked) {
 						cb1.setText("GPS on");
 						// toggleGPS();
-						turnGPSOn();
-						gps_check();
+						enableGPS(true);
+						gpsCheck();
 					} else {
 						cb1.setText("GPS off");
 						// toggleGPS();
-						turnGPSOff();
-						gps_check();
+						enableGPS(false);
+						gpsCheck();
 					}
 				}
 			}
@@ -73,10 +75,10 @@ public class MainActivity extends Activity {
 				if (buttonView.findViewById(R.id.checkBox3) == cb3) {
 					if (isChecked) {
 						cb3.setText("Screen keep on");
-						turnScreenOn();
+						keepScreenOn(true);
 					} else {
 						cb3.setText("Screen keep off");
-						turnScreenOff();
+						keepScreenOn(false);
 					}
 				}
 			}
@@ -99,10 +101,10 @@ public class MainActivity extends Activity {
 
 				switch (checkedId) {
 				case R.id.radio0: // Flight mode on
-					setAirplaneModeOn(true);
+					enableAirplaneMode(true);
 					break;
 				case R.id.radio1: // WLAN on, while flight mode can be on
-					setAirplaneModeOn(false);
+					enableAirplaneMode(false);
 					// add sleep to make the state change stable
 					try {
 						Thread.sleep(200);
@@ -111,7 +113,7 @@ public class MainActivity extends Activity {
 					}
 					setWlanGPRSModeOn(true);
 				case R.id.radio2: // GPRS on, while flight mode cannot be on
-					setAirplaneModeOn(false);
+					enableAirplaneMode(false);
 					// add sleep to make the state change stable
 					try {
 						Thread.sleep(200);
@@ -146,7 +148,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private void gps_check() {
+	private void gpsCheck() {
 		boolean isGPSEnabled = false;
 
 		isGPSEnabled = Settings.Secure.isLocationProviderEnabled(
@@ -160,9 +162,12 @@ public class MainActivity extends Activity {
 	}
 
 	// 出现“正在使用GPS搜索...”字样，但是GPS指示键没有被点亮
-	public void turnGPSOn() {
+	public void enableGPS(boolean enabled) {
 		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-		intent.putExtra("enabled", true);	// 源代码某处：public static final String EXTRA_GPS_ENABLED = "enabled"; 
+		if(enabled)
+			intent.putExtra("enabled", true);	// 源代码某处：public static final String EXTRA_GPS_ENABLED = "enabled"; 
+		else
+			intent.putExtra("enabled", false);
 		this.sendBroadcast(intent);
 
 		String provider = Settings.Secure.getString(this.getContentResolver(), 
@@ -174,49 +179,32 @@ public class MainActivity extends Activity {
 			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
 			poke.setData(Uri.parse("3"));
 			this.sendBroadcast(poke);
-			Toast.makeText(this, "turn GPS on", Toast.LENGTH_LONG).show();
+			if(enabled)
+				Toast.makeText(this, "turn GPS on", Toast.LENGTH_LONG).show();
+			else
+				Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
 		}
 	}
 
-	// automatic turn off the gps
-	public void turnGPSOff() {
-		Intent intent = new Intent("android.location.GPS_ENABLED_CHANGE");
-		intent.putExtra("enabled", false);
-		sendBroadcast(intent);
+	public void keepScreenOn(boolean enabled) {
+		if (wakeLock == null)
+			wakeLock = ((PowerManager)getSystemService(POWER_SERVICE)).
+						newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "MyActivity");  
 		
-		String provider = Settings.Secure.getString(this.getContentResolver(),
-				Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-		if (provider.contains("gps")) { // if gps is enabled，i9300实测没有被执行
-			final Intent poke = new Intent();
-			poke.setClassName("com.android.settings",
-					"com.android.settings.widget.SettingsAppWidgetProvider");
-			poke.addCategory(Intent.CATEGORY_ALTERNATIVE);
-			poke.setData(Uri.parse("3"));
-			this.sendBroadcast(poke);
-			Toast.makeText(this, "turn GPS off", Toast.LENGTH_LONG).show();
-		}
-	}
-	
-	public void turnScreenOn() {
-		//启用屏幕常亮  
-		wakeLock = ((PowerManager)getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "MyActivity");  
-		wakeLock.acquire(); 
-	}
-	
-	public void turnScreenOff() {
-	//关闭屏幕常亮  
-	if (wakeLock != null)
-		wakeLock.release();
+		if(enabled)
+			wakeLock.acquire(); 
+		else
+			wakeLock.release();
 	}
 
-	private void setAirplaneModeOn(boolean enabling) {
+	private void enableAirplaneMode(boolean enabling) {
 		// Change the system setting
 		Settings.System.putInt(this.getContentResolver(),
 				Settings.System.AIRPLANE_MODE_ON, enabling ? 1 : 0);
 
 		// Post the intent
 		Intent intent = new Intent(Intent.ACTION_AIRPLANE_MODE_CHANGED);
-		// intent.putExtra("state2", enabling);
+		intent.putExtra("AirplaneMode", enabling);
 		this.sendBroadcast(intent);
 	}
 
